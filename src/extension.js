@@ -1,8 +1,12 @@
 const vscode = require('vscode')
+const TemplatePathProvider = require("./templatePathProvider").TemplatePathProvider
 
-// This hack is necessary to ensure that the vscode.html-language-features extension is activated in order to enable
-// htmlLanguageParticipants support. Please see https://github.com/microsoft/vscode/issues/160585 for more info.
-async function activate() {
+/**
+ * @param {vscode.ExtensionContext} context
+ */
+async function activate(context) {
+  // This hack is necessary to ensure that the vscode.html-language-features extension is activated in order to enable
+  // htmlLanguageParticipants support. Please see https://github.com/microsoft/vscode/issues/160585 for more info.
   const htmlExtension = vscode.extensions.getExtension('vscode.html-language-features')
 
   if (!htmlExtension) {
@@ -15,6 +19,10 @@ async function activate() {
   }
 
   await htmlExtension?.activate()
+
+  // Provide template path definitions for extends/include statements
+  const definitions = new TemplatePathProvider()
+  context.subscriptions.push(vscode.languages.registerDefinitionProvider([{ scheme: 'file' }], definitions))
 }
 
 module.exports = {
